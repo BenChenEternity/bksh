@@ -1,0 +1,98 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.png">
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>蓝鲸校园助手</title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}fontawesome-free/css/all.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    <!-- iCheck -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- JQVMap -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}jqvmap/jqvmap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}dist/css/adminlte.min.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}daterangepicker/daterangepicker.css">
+    <!-- summernote -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}summernote/summernote-bs4.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <style>
+        .myalert {
+            width: 170px;
+            position: absolute;
+            z-index: 10;
+            top: 2px;
+            text-align: center
+        }
+    </style>
+
+</head>
+
+
+{% block content %}
+
+
+{% endblock %}
+
+<!-- jQuery -->
+<script src="{{ STATIC_URL }}jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{{ STATIC_URL }}jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+    $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- ChartJS -->
+<script src="{{ STATIC_URL }}chart.js/Chart.min.js"></script>
+<!-- Sparkline -->
+<script src="{{ STATIC_URL }}sparklines/sparkline.js"></script>
+<!-- JQVMap -->
+<script src="{{ STATIC_URL }}jqvmap/jquery.vmap.min.js"></script>
+<script src="{{ STATIC_URL }}jqvmap/maps/jquery.vmap.usa.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="{{ STATIC_URL }}jquery-knob/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="{{ STATIC_URL }}moment/moment.min.js"></script>
+<script src="{{ STATIC_URL }}daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{{ STATIC_URL }}tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Summernote -->
+<script src="{{ STATIC_URL }}summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="{{ STATIC_URL }}overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="{{ STATIC_URL }}dist/js/adminlte.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{{ STATIC_URL }}dist/js/pages/dashboard.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{ STATIC_URL }}dist/js/demo.js"></script>
+{% block custom_js %}
+{% endblock %}
+<script>
+    window.onload = function () {
+        window.setTimeout(function () {
+            $(".alert-success").removeClass("show");
+        }, 2000);//显示的时间
+        window.setTimeout(function () {
+            $(".alert-danger").removeClass("show");
+        }, 1500);//显示的时间
+    }
+</script>
+</body>
+</html>

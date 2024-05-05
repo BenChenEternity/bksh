@@ -1,0 +1,43 @@
+{% extends 'base_template.html' %}
+
+
+{% block page_title %}
+    分享资源
+{% endblock %}
+
+{% block main_content %}
+    {% load static %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">资源内容</h3>
+                        </div>
+                        <form action="{% url 'do_resource_share' %}" method="post">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>标题</label>
+                                    <input class="form-control" placeholder="标题" type="text" name="resource_title">
+                                </div>
+                                <div class="form-group">
+                                    <label>资源信息与链接</label>
+                                    <textarea class="form-control" placeholder="请输入资源相关信息" style="height: 80px"type="text" name="resource_info"> </textarea>
+                                </div>
+
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary">发布资源</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br>
+    </section>
+{% endblock %}

@@ -1,0 +1,78 @@
+{% extends 'base_template.html' %}
+
+{% block title %}GPT 应答前端{% endblock %}
+{% block page_title %}
+    蓝鲸AI助手
+{% endblock %}
+{% block main_content %}
+    <div class="container mt-5">
+        <div class="row">
+            <div class="col-md-6 offset-md-3">
+                <div class="input-group mb-3">
+                    请输入您的问题，蓝鲸AI助手 将为您解答疑惑。
+                </div>
+                <div class="input-group mb-3">
+                    <textarea class="form-control" placeholder="输入您的问题" id="userInput"
+                              style="font-size: 18px"> </textarea>
+                    <button class="btn btn-primary" onclick="getGptResponse(this)" style="width: 100px">
+                        <p id="get-response" style="display: flex">获取应答</p>
+                        <div id="loading" class="spinner-border text-success" role="status" style="display: none">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                    </button>
+                </div>
+                <div id="response" class="alert alert-info" role="alert" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        function getGptResponse(element) {
+            var userInput = document.getElementById('userInput').value;
+            var spinnerElement = document.getElementById('loading');
+            var textElement = document.getElementById('get-response');
+
+            spinnerElement.style.display = 'flex';
+            textElement.style.display = 'none';
+
+            element.disabled = true;
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'ai_helper' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'message': userInput
+                },
+                success: function (data) {
+                    console.log(data);
+                    displayResponse(data.reply);
+                    spinnerElement.style.display = 'none';
+                    textElement.style.display = 'flex';
+                    element.disabled = false;
+                },
+                error: function () {
+                    displayResponse('出现错误，请重试。');
+                    spinnerElement.style.display = 'none';
+                    textElement.style.display = 'flex';
+                    element.disabled = false;
+                }
+            })
+            ;
+        }
+
+        function displayResponse(response) {
+            var responseDiv = document.getElementById('response');
+            responseDiv.innerHTML = response;
+            responseDiv.style.display = 'block';
+        }
+    </script>
+{% endblock %}
+
+
+
+
+

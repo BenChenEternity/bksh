@@ -1,0 +1,82 @@
+{% extends 'base_template.html' %}
+
+{% block page_title %}
+    发送邮箱
+{% endblock page_title %}
+
+{% block main_content %}
+
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">编辑邮件</h3>
+                        </div>
+
+                        <div class="card-body">
+
+                            <form role='form' action="{% url 'admin_profile_update' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label>收件人</label>
+                                    <input type="text" class="form-control" name="to_email"
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label>主题 </label>
+                                    <input type="text" class="form-control" name="title"
+
+                                    >
+                                </div>
+                                <div class="form-group">
+                                    <label>内容 </label>
+                                    <textarea class="form-control" name="content" rows="5"></textarea>
+                                </div>
+
+
+                                <button type="button" class="btn btn-primary" id='send_btn'>发送</button>
+
+                            </form>
+
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </section>
+
+{% endblock %}
+
+{% block custom_js %}
+    <script>
+        $("#send_btn").click(function () {
+            var to_email = $("input[name='to_email']").val();
+            var title = $("input[name='title']").val();
+            var content = $("textarea[name='content']").val();
+            console.log(to_email, title, content)
+            $.ajax({
+                url: "{% url 'send_email' %}",
+                type: "POST",
+                data: {
+                    'to_email': to_email,
+                    'title': title,
+                    'content': content,
+                    csrfmiddlewaretoken: '{{ csrf_token }}',
+                },
+                success: function (data) {
+                    if (data['status'] == 'success') {
+                        alert('发送成功');
+                    } else {
+                        alert('发送失败');
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}

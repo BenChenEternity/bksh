@@ -1,0 +1,545 @@
+{% extends 'base_template.html' %}
+{% block page_title %}
+    我的私信
+{% endblock %}
+{% block custom_css %}
+    <style type="text/css">
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            height: 100vh;
+        }
+
+        .user-info img {
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+
+        .chat-content {
+            padding: 20px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .user-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .user-item:hover {
+            background-color: #e5e5e5;
+        }
+
+        .user-info-container {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            border-radius: 50%;
+            margin-right: 10px;
+            max-width: 40px;
+            max-height: 40px;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .user-name {
+            font-weight: bold;
+        }
+
+        .user-item.unread::after {
+            content: '';
+            display: block;
+            width: 14px;
+            height: 14px;
+            background-color: red;
+            border-radius: 50%;
+            position: relative;
+            top: -40px;
+            left: -5px;
+            transform: translate(0, -50%);
+        }
+
+        .user-item.selected {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .chat-container {
+            display: flex;
+            max-width: 85%;
+            height: 80vh; /* 设置为页面的80% */
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .sidebar-session {
+            flex: 0 0 25%;
+            background-color: #ffffff;
+            padding: 10px;
+            box-shadow: 1px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .dialog-container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            background-color: #f4f5f7;
+        }
+
+        .chat-content {
+            flex: 7;
+            padding: 10px;
+            max-height: 100%;
+            overflow-y: auto;
+            border-bottom: solid 1px #ccc;
+        }
+
+        .chat-input-container {
+            flex: 3; /* 占30% */
+            flex-direction: column;
+            display: flex;
+            padding: 10px;
+            background-color: #f4f5f7;
+            align-items: center;
+        }
+
+        #messageInput {
+            flex: 1;
+            padding: 8px;
+            margin-right: 10px;
+            width: 90%;
+            resize: none; /* 防止用户调整文本区域大小 */
+            border-radius: 14px;
+        }
+
+        #messageInput:focus {
+            outline: none;
+        }
+
+        .send-container {
+            margin-top: 5px;
+            align-items: center;
+            display: flex;
+            justify-content: right;
+        }
+
+        button {
+            margin-left: 20px;
+            width: 100px;
+            padding: 8px;
+            background-color: #3498db;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            border-radius: 15px;
+        }
+
+        button:hover {
+            background-color: #2980b9;
+        }
+
+        .user-message-template {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .recipient-message-template {
+            display: flex;
+        }
+
+        .user-conversation-bubble {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            margin: 10px;
+            position: relative;
+            align-self: flex-end;
+        }
+
+        .recipient-conversation-bubble {
+            display: flex;
+            flex-direction: column;
+            max-width: 70%;
+            margin: 10px;
+            position: relative;
+        }
+
+        .message-avatar {
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .user-message-content {
+            background-color: #4CAF50; /* 绿底 */
+            color: #fff; /* 白字 */
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .recipient-message-content {
+            background-color: #ddd; /* 灰底 */
+            color: #000; /* 黑字 */
+            padding: 10px;
+            border-radius: 10px;
+            max-width: 90%;
+            word-wrap: break-word;
+        }
+
+        .bubble-top {
+            display: flex;
+            align-items: center;
+            padding: 5px;
+            justify-content: flex-end;
+        }
+
+        .timestamp {
+            font-size: 12px;
+            color: #888;
+            margin-right: 10px;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-left: 20px;
+            margin-right: 20px;
+        }
+
+        .read {
+            font-size: 12px;
+            color: #888;
+            margin-left: 10px;
+        }
+
+        .no-margin {
+            margin-bottom: 0;
+        }
+
+
+    </style>
+
+{% endblock %}
+{% block main_content %}
+    <div id="status_pop"></div>
+
+    <div class="chat-container">
+        <div class="sidebar-session ">
+            <div class="user-list primary" id="userList"></div>
+        </div>
+        <div class="dialog-container">
+            <div class="chat-content" id="chatContent">
+
+            </div>
+            <div class="chat-input-container float-right">
+                <textarea id="messageInput" placeholder="输入消息..."></textarea>
+            </div>
+            <div class="send-container float-right">
+                <div id="charCount">0/256</div>
+                <button class='btn-primary' onclick="sendMessage()">发送</button>
+            </div>
+        </div>
+    </div>
+
+
+    <div id="sent" style="display: none;">
+        <div class="user-message-template">
+            <div class="user-conversation-bubble">
+                <div class="bubble-top">
+                    <div class="timestamp">{timestamp}</div>
+                    <div class="read">{read}</div>
+                </div>
+                <div class="message-avatar">
+                    <div class="user-message-content">
+                        <p class="no-margin">{your_message_content}</p>
+                    </div>
+                    <img src="{your_avatar_url}" class="avatar" alt="You">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="received" style="display: none;">
+        <div class="recipient-message-template">
+            <div class="recipient-conversation-bubble">
+                <div class="bubble-top">
+                    <div class="timestamp">{timestamp}</div>
+                </div>
+                <div class="message-avatar">
+                    <img src="{recipient_avatar_url}" class="avatar" alt="He/She">
+                    <div class="recipient-message-content">
+                        <p class="no-margin">{recipient_message_content}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    <script>
+        var selectedUserId;
+
+        const statusPopEntity = document.getElementById('status_pop')
+        var userList = document.getElementById('userList');
+        var chatContent = document.getElementById('chatContent');
+
+        {% for session in sessions %}
+            var setDefaultUser = false;
+            (function () {
+                var user = {
+                    id: {{ session.person_id }},
+                    adminId:{{ session.person_admin_id }},
+                    name: '{{ session.person_name }}',
+                    avatar: '{{ session.person_avatar }}',
+                    school: '{{ session.person_school }}',
+                    dot: '{{ session.red_dot }}'
+                };
+
+                var userItem = document.createElement('div');
+                userItem.className = 'user-item';
+
+                // 创建包含头像和名称的容器
+                var userInfoContainer = document.createElement('div');
+                userInfoContainer.className = 'user-info-container';
+
+                // 添加用户头像
+                var userAvatar = document.createElement('img');
+                userAvatar.src = user.avatar;
+                userAvatar.alt = user.name;
+                userAvatar.className = 'user-avatar';
+
+                // 添加用户名称和学校信息
+                var userName = document.createElement('span');
+                userName.className = 'user-name';
+                userName.innerHTML = `<span>${user.name}</span><br><span style="color: lightblue; font-weight: bold; font-size: 0.9em;">${user.school}</span>`;
+
+                if (user.dot === 'True') {
+                    userItem.classList.add('unread');
+                }
+
+                // 将头像和名称添加到容器中
+                userInfoContainer.appendChild(userAvatar);
+                userInfoContainer.appendChild(userName);
+
+
+                userAvatar.addEventListener('mouseover', function () {
+                    userAvatar.style.transform = 'scale(1.4)';
+                });
+
+                userAvatar.addEventListener('mouseout', function () {
+                    userAvatar.style.transform = 'scale(1)';
+                });
+
+                userAvatar.addEventListener('click', function () {
+                    window.location.href = "{% url 'ohome_page' 0 %}".replace('0', user.adminId);
+                });
+
+                // 将用户信息容器添加到用户项目中
+                userItem.appendChild(userInfoContainer);
+
+                // 添加点击事件
+                userItem.addEventListener('click', function () {
+                    switchUser(user, user.avatar);
+                });
+
+                // 将用户项目添加到用户列表中
+                userList.appendChild(userItem);
+
+                if (!setDefaultUser) {
+                    setDefaultUser = true;
+                    first_user = user
+                    first_avatar = user.avatar
+                }
+            })();
+        {% endfor %}
+
+
+
+        function switchUser(user, recipient_avatar) {
+            chatContent.innerHTML = '';
+            selectedUserId = user.id;
+            var userItems = document.querySelectorAll('.user-item');
+            userItems.forEach(function (item) {
+                item.classList.remove('selected');
+            });
+            var selectedUserItem = event.currentTarget;
+            selectedUserItem.classList.add('selected');
+            selectedUserItem.classList.remove('unread');
+
+            $.ajax({
+                type: "POST",
+
+                url: "{% url 'private_messages_single_user' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'user_id': user.id
+                },
+                success: function (response) {
+                    var status = response.status_request;
+                    if (status === 'success') {
+                        const msgs = response.msgs;
+                        const sentElement = document.getElementById('sent');
+                        const sentHTML = sentElement.innerHTML;
+                        const receivedElement = document.getElementById('received');
+                        const receivedHTML = receivedElement.innerHTML;
+                        for (var i = 0; i < msgs.length; i++) {
+                            var msg = msgs[i];
+                            var thisHTML;
+                            if (msg.you_receive === true) {
+                                {# 如果是对方发送的消息 #}
+                                thisHTML = receivedHTML
+                                    .replace('{recipient_message_content}', msg.message)
+                                    .replace('{timestamp}', formatDateString(msg.timestamp))
+                                    .replace('{recipient_avatar_url}', recipient_avatar)
+                            } else {
+                                let readMsg;
+                                if (msg.read === true) {
+                                    readMsg = "已读"
+                                } else {
+                                    readMsg = "未读"
+                                }
+                                thisHTML = sentHTML
+                                    .replace('{your_message_content}', msg.message)
+                                    .replace('{timestamp}', formatDateString(msg.timestamp))
+                                    .replace('{read}', readMsg)
+                                    .replace('{your_avatar_url}', getCookieValue("your_avatar_path"))
+                            }
+                            chatContent.insertAdjacentHTML('beforeend', thisHTML);
+                            chatContent.scrollTop = chatContent.scrollHeight;
+                        }
+
+                    }
+                }
+            })
+            ;
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var messageInput = document.getElementById('messageInput');
+            var charCount = document.getElementById('charCount');
+
+            messageInput.addEventListener('input', function () {
+                var currentCount = messageInput.value.length;
+                charCount.textContent = currentCount + '/256';
+                if (currentCount > 256) {
+                    messageInput.value = messageInput.value.substring(0, 256);
+                    charCount.textContent = '256/256';
+                }
+            });
+        });
+
+
+        function sendMessage() {
+            if (selectedUserId === undefined) {
+                const wrapper = document.createElement('div')
+                wrapper.innerHTML = [
+                    `<div class="alert alert alert-danger" role="alert">`,
+                    `   <div>没有选择发送对象</div>`,
+                    '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                    '</div>'
+                ].join('')
+                statusPopEntity.append(wrapper)
+                return
+            }
+            var messageInput = document.getElementById('messageInput');
+            var messageContent = messageInput.value.trim();
+            if (messageContent !== '') {
+                $.ajax({
+                    type: "POST",
+
+                    url: "{% url 'send_private_message' %}",
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    },
+                    data: {
+                        'user_id': selectedUserId,
+                        'message': messageContent
+                    },
+                    success: function (response) {
+                        const status = response.status_request;
+                        if (status === 'success') {
+                            const timestamp = response.message_info;
+                            const sentElement = document.getElementById('sent');
+                            const sentHTML = sentElement.innerHTML;
+                            const thisHTML = sentHTML
+                                .replace('{your_message_content}', messageContent)
+                                .replace('{timestamp}', formatDateString(timestamp))
+                                .replace('{read}', "未读")
+                                .replace('{your_avatar_url}', getCookieValue("your_avatar_path"))
+                            chatContent.insertAdjacentHTML('beforeend', thisHTML);
+                            chatContent.scrollTop = chatContent.scrollHeight;
+                            messageInput.value = '';
+                            const charCount = document.getElementById('charCount');
+                            charCount.textContent = '0/256';
+                        } else {
+                            const wrapper = document.createElement('div')
+                            wrapper.innerHTML = [
+                                `<div class="alert alert alert-danger" role="alert">`,
+                                `   <div>发送失败</div>`,
+                                '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                                '</div>'
+                            ].join('')
+                            statusPopEntity.append(wrapper)
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = [
+                            `<div class="alert alert alert-danger" role="alert">`,
+                            `   <div>发送失败</div>`,
+                            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                            '</div>'
+                        ].join('');
+                        statusPopEntity.append(wrapper);
+                    }
+                })
+                ;
+            }
+
+        }
+
+        function formatDateString(inputDateString) {
+            const inputDate = new Date(inputDateString);
+
+            const year = inputDate.getFullYear();
+            const month = String(inputDate.getMonth() + 1).padStart(2, '0');
+            const day = String(inputDate.getDate()).padStart(2, '0');
+            const hours = String(inputDate.getHours()).padStart(2, '0');
+            const minutes = String(inputDate.getMinutes()).padStart(2, '0');
+            const seconds = String(inputDate.getSeconds()).padStart(2, '0');
+
+            return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+        }
+
+        function getCookieValue(cookieName) {
+            var cookies = document.cookie;
+            var cookieArray = cookies.split(';');
+            for (var i = 0; i < cookieArray.length; i++) {
+                var cookie = cookieArray[i].trim();
+                if (cookie.indexOf(cookieName + '=') === 0) {
+                    return cookie.substring(cookieName.length + 1, cookie.length).replace(/^"(.*)"$/, '$1');
+                }
+            }
+            return null;
+        }
+    </script>
+{% endblock %}

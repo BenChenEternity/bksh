@@ -1,0 +1,83 @@
+{% extends 'stu_base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <body class="hold-transition login-page"
+          style="background-image: url('{{ STATIC_URL }}img/222.jpg');background-size:100% 100%;background-repeat:no-repeat;">
+    <div class="login-box" style="width: 25%;height: 50%;">
+        <div class="login-logo">
+            <a href="{% url 'login' %}"
+               style="color: #22c7ff;font-family: 华文行楷;font-size: 40px;border-color: lightblue"><strong>蓝鲸校园助手</strong></a>
+        </div>
+        <!-- /.login-logo -->
+        <div class="card">
+            <div class="card-body login-card-body">
+                <p class="login-box-msg">登录界面</p>
+
+                <form action="{% url 'doLogin' %}" method='post'>
+                    {% csrf_token %}
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="用户名" name="username">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="密码" name="password">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary btn-block">登录</button>
+
+                        </div>
+                        <div class="col">
+                            <a href="{% url 'sign_up' %}" class="btn btn-dark btn-block">注册</a>
+                        </div>
+                    </div>
+
+
+
+                    {% if messages %}
+                        <div class="form-group">
+                            <div class="col-12">
+                                {% for message in messages %}
+                                    {% if message.tags == "error" %}
+                                        <div class="alert alert-danger alert-dismissible fade show" role="alert"
+                                             style="margin-top: 10px;">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% elif message.tags == "success" %}
+                                        <div class="alert alert-success alert-dismissible fade show" role="alert"
+                                             style="margin-top: 10px;">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                </form>
+                <!-- /.col -->
+            </div>
+
+
+        </div>
+    </div>
+    <!-- /.login-box -->
+
+{% endblock %}

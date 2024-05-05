@@ -1,0 +1,156 @@
+{% load static %}
+
+<aside class="main-sidebar sidebar-mini-md sidebar-dark-primary elevation-4 ">
+    <!-- Brand Logo -->
+
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+        <div class="user-panel  pb-3 mt-3  mb-3">
+
+            <div class="image text-center ml-3" style="text-align: center"><img src="{{ user.customuser.avatars.url }}"
+                                                                                style="width: 80px;height: 80px"
+                                                                                class="img-circle " alt="头像">&nbsp;
+            </div>
+        </div>
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+            <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+                <!-- Add icons to the links using the .nav-icon class
+                    with font-awesome or any other icon font library -->
+
+                <li class="nav-item">
+                    {% url 'welcome_page' as welcome_page %}
+                    <a href="{% url 'welcome_page' %}"
+                       class="nav-link {% if request.path == welcome_page %} active {% endif %}">
+                        <i class="fa-solid fa-rocket fa-lg">&nbsp;</i>
+                        <p>
+                            首页
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    {% url 'home_page' as home_page %}
+                    <a href="{% url 'home_page' %}"
+                       class="nav-link {% if request.path == home_page %} active {% endif %}">
+                        <i class="fa-solid fa-house fa-lg">&nbsp;</i>
+                        <p>
+                            个人主页
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'moments' as moments %}
+                    {% url 'moment_help' as moment_help %}
+                    {% url 'moment_file_share' as moment_file_share %}
+                    {% url 'moment_make_friend' as moment_make_friend %}
+                    {% url 'moment_market' as moment_market %}
+                    {% url 'resource_share' as resource_share %}
+                    {% url 'moment_publish' as moment_publish %}
+
+                    <a href="{% url 'moments' %}"
+                       class="nav-link {% if request.path == moments or request.path == moment_file_share or request.path == moment_make_friend or request.path == moment_market or request.path == resource_share or request.path == moment_publish or request.path == moment_help %}
+                    active {% endif %}">
+                        <i class="fa-solid fa-shop fa-lg">&nbsp;</i>
+                        <p>
+                            校园动态
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    {% url 'empty_classroom' as empty_classroom %}
+                    <a href="{% url 'empty_classroom' %}"
+                       class="nav-link {% if request.path == empty_classroom %} active {% endif %}">
+                        <i class="fa-brands fa-searchengin fa-lg">&nbsp;</i>
+                        <p>
+                            空教室查询
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'my_moment' as my_moment %}
+                    <a href="{% url 'my_moment' %}"
+                       class="nav-link {% if request.path == my_moment %} active {% endif %}">
+                        <i class="fa-solid fa-comments"> </i>
+                        <p>
+                            我的动态
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'my_star' as my_star %}
+                    <a href="{% url 'my_star' %}" class="nav-link {% if request.path == my_star %} active {% endif %}">
+                        <i class="fa-solid fa-star fa-lg">&nbsp;</i>
+                        <p>
+                            收藏
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'my_messages' as my_messages %}
+                    <a href="{% url 'my_messages' %}"
+                       class="nav-link {% if request.path == my_messages %} active {% endif %}">
+                        <i class="fas fa-bullhorn">&nbsp;</i>
+                        <p>
+                            通知
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'private_messages' as private_messages %}
+                    <a href="{% url 'private_messages' %}"
+                       class="nav-link {% if request.path == private_messages %} active {% endif %}">
+                        <i class="fa-solid fa-comment fa-lg">&nbsp;</i>
+                        <p>
+                            私信
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'my_follows' as my_follows %}
+                    <a href="{% url 'my_follows' %}"
+                       class="nav-link {% if request.path == my_follows %} active {% endif %}">
+                        <i class="fa-solid fa-heart fa-lg">&nbsp;</i>
+                        <p>
+                            我的关注
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'email_module' as email_module %}
+                    <a href="{% url 'email_module' %}"
+                       class="nav-link {% if request.path == email_module %} active {% endif %}">
+                        <i class="fa-solid fa-envelope fa-lg"></i>
+                        <p>
+                            &nbsp;发送邮件
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item ">
+                    {% url 'personal_profile' as personal_profile %}
+                    <a href="{% url 'personal_profile' %}"
+                       class="nav-link {% if request.path == personal_profile %} active {% endif %}">
+                        <i class="fa-solid fa-gear fa-lg">&nbsp;</i>
+                        <p>
+                            设置
+                        </p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    {% url 'gpt_page' as gpt_page %}
+                    <a href="{% url 'gpt_page' %}"
+                       class="nav-link {% if request.path == gpt_page %} active {% endif %}">
+                        <i class="fa-solid fa-robot fa-lg">&nbsp;</i>
+                        <p>
+                            蓝鲸AI助手
+                        </p>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+    </div>
+    <!-- /.sidebar -->
+</aside>

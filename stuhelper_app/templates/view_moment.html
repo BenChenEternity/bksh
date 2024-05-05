@@ -1,0 +1,399 @@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+{% extends 'base_template.html' %}
+{% block page_title %}
+    校园动态
+{% endblock %}
+{% block title_button %}
+    <a href="{% url 'moment_publish' %}" style="float: right" class="btn btn-outline-primary">发布</a>
+{% endblock %}
+{% block main_content %}
+    <div id="status_pop"></div>
+    <div class="container"></div>
+    <div class="card my_main border-info mb-3">
+            <span class="card-header">
+            <a href="
+                    {% if not post.anonymous %}{% url 'ohome_page' post.author.admin.id %}{% else %}javaScript:void(0){% endif %}"
+               style="text-decoration: none">
+                    <img src=
+                                 {% if post.anonymous %}
+                                     /stag--bkshdemo/media/{{ post.author.anonymous_img }}
+                                 {% else %}
+                                     {{ post.author.avatars.url }}
+                                 {% endif %}
+                         class="avatar" alt="头像">&nbsp;
+            </a>
+                {% if post.anonymous %}
+                    匿名
+                {% else %}
+                    {{ post.author.admin.username }}
+                {% endif %}
+                <span class="card-header-smaller-right">{{ post.author.school }} {{ post.ctime }}</span>
+            </span>
+
+
+        <div class="card-body" data-post-id="{{ post.id }}" id="card-entity">
+            <a class="card-title card-title-font">{{ post.title }}</a>
+            <p class="card-text">{{ post.content }}</p>
+            <p class="post_type">{{ post.post_type }}</p>
+
+            <a class="btn btn-star btn-light btn-lg float-right {% if starred %}starred{% endif %}"
+               style="border: none;"
+               onclick="handleStarClick(this)"><i class="fas fa-star"></i></a>
+            <a class="btn btn-like btn-light btn-lg float-right {% if liked %}liked{% endif %}"
+               style="border: none;"
+               onclick="handleThumbsUpClick(this)"><i class="fas fa-thumbs-up"></i>
+                <span id="likesCount{{ post.id }}" style="font-size: smaller">{{ post.like }}</span>
+            </a>
+            <a class="btn btn-comment btn-light btn-lg float-right"
+               style="border: none;"
+               onclick="handleCommentClick(this)"><i class="fas fa-comment"></i>
+            </a>
+        </div>
+    </div>
+
+
+
+    <ul class="list-group list-group-flush">
+        <div id="input-container" class="dialog-container" style="display: none;">
+            <div class="chat-input-container float-right">
+                <textarea id="messageInput" placeholder="评论千万条，友善第一条"></textarea>
+            </div>
+            <div class="send-container float-right">
+                <div id="charCount">0/256</div>
+                <button class='btn-primary' onclick="sendComment()">发送</button>
+            </div>
+        </div>
+        {% for comment in comments %}
+            <li class="list-group-item single-comment">
+                <div class="info-container">
+                    <a href="{% url 'ohome_page' comment.user_admin_id %}" style="text-decoration: none">
+                        <img src="{{ comment.user_avatar }}" class="avatar" alt="头像">&nbsp;
+                    </a>
+                    <div class="user-name-school-container">
+                        <p class="user-name">{{ comment.user_name }}</p>
+                        <p class="user-school">{{ comment.commenter_school }}</p>
+                    </div>
+                    <div class="timestamp-container">{{ comment.timestamp }}</div>
+                </div>
+                <div class="comment-message">
+                    <p>{{ comment.message }}</p>
+                </div>
+            </li>
+        {% endfor %}
+    </ul>
+
+
+
+    <script>
+        function handleStarClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_star' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result
+                    if (resultValue === 'starred') {
+                        element.classList.add('starred');
+                    } else if (resultValue === 'unstarred') {
+                        element.classList.remove('starred');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                }
+            })
+            ;
+        }
+
+        function handleThumbsUpClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            console.log("thumb up for post ID:", postId);
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_like' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result;
+                    var likesCountElement = document.getElementById('likesCount' + postId);
+                    var currentLikes = parseInt(likesCountElement.textContent);
+                    if (resultValue === 'liked') {
+                        var newLikes = currentLikes + 1;
+                        element.classList.add('liked');
+
+                    } else if (resultValue === 'unliked') {
+                        var newLikes = currentLikes - 1;
+                        element.classList.remove('liked');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                    likesCountElement.textContent = newLikes;
+                }
+            })
+            ;
+        }
+
+        function handleCommentClick(element) {
+            const elementClassList = element.classList;
+            const inputContainer = document.getElementById('input-container');
+            if (elementClassList.contains('commenting')) {
+                element.classList.remove('commenting');
+                inputContainer.style.display = 'none';
+            } else {
+                element.classList.add('commenting');
+                inputContainer.style.display = 'flex';
+
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            var messageInput = document.getElementById('messageInput');
+            var charCount = document.getElementById('charCount');
+
+            messageInput.addEventListener('input', function () {
+                var currentCount = messageInput.value.length;
+                charCount.textContent = currentCount + '/256';
+                if (currentCount > 256) {
+                    messageInput.value = messageInput.value.substring(0, 256);
+                    charCount.textContent = '256/256';
+                }
+            });
+        });
+
+        function sendComment() {
+            const statusPopEntity = document.getElementById('status_pop')
+            var postId = document.getElementById('card-entity').getAttribute('data-post-id');
+            var messageInput = document.getElementById('messageInput');
+            var messageContent = messageInput.value.trim();
+            if (messageContent !== '') {
+                $.ajax({
+                    type: "POST",
+
+                    url: "{% url 'send_comment' %}",
+                    headers: {
+                        "X-CSRFToken": '{{ csrf_token }}'
+                    },
+                    data: {
+                        'post_id': postId,
+                        'message': messageContent
+                    },
+                    success: function (response) {
+                        const status = response.result;
+                        if (status === 'commented') {
+                            location.reload();
+                        } else {
+                            const wrapper = document.createElement('div')
+                            wrapper.innerHTML = [
+                                `<div class="alert alert alert-danger" role="alert">`,
+                                `   <div>评论失败</div>`,
+                                '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                                '</div>'
+                            ].join('')
+                            statusPopEntity.append(wrapper)
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        const wrapper = document.createElement('div');
+                        wrapper.innerHTML = [
+                            `<div class="alert alert alert-danger" role="alert">`,
+                            `   <div>评论失败</div>`,
+                            '   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>',
+                            '</div>'
+                        ].join('');
+                        statusPopEntity.append(wrapper);
+                    }
+                })
+                ;
+            }
+        }
+    </script>
+
+
+
+{% endblock %}
+
+{% block custom_css %}
+    <style>
+        .my_main {
+            width: 60%;
+            margin: auto;
+        }
+
+        .card-header-smaller-right {
+            font-size: smaller;
+            float: right;
+            font-weight: lighter;
+        }
+
+        .card-title-font {
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        .post_type {
+            font-size: 14px;
+            font-weight: lighter;
+            margin: 0;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+
+        .btn-like {
+            width: 100px;
+            height: 38px;
+            text-align: center;
+            padding-top: 3px;
+        }
+
+        .btn-like.liked {
+            color: #02afec;
+        }
+
+        .btn-star.starred {
+            color: #02afec;
+        }
+
+        .btn-like.liked:hover {
+            color: #02afec;
+        }
+
+        .btn-star.starred:hover {
+            color: #02afec;
+        }
+
+        .btn-comment {
+            width: 50px;
+            height: 38px;
+        }
+
+        .btn-comment.commenting {
+            color: rgb(254, 19, 147);
+        }
+
+
+        .btn-star {
+            width: 50px;
+            height: 38px;
+        }
+
+        .list-group {
+            width: 60%;
+            display: flex;
+            margin: auto;
+        }
+
+        .list-group-item {
+            list-style: none;
+            border: 1px solid #ccc;
+            margin-bottom: 10px;
+            padding: 10px;
+        }
+
+        .info-container {
+            display: flex;
+            align-items: center;
+            margin-left: 30px;
+        }
+
+        .user-name-school-container {
+            flex: 1;
+        }
+
+        .user-name {
+            font-weight: bold;
+            font-size: 18px;
+            margin: 0 0 0 20px;
+        }
+
+        .user-school {
+            color: #888;
+            font-size: 14px;
+            margin: 0 0 0 20px;
+        }
+
+        .timestamp-container {
+            color: #888;
+            font-size: 14px;
+            margin-right: 50px;
+        }
+
+        .comment-message {
+            margin-top: 10px;
+            margin-left: 40px;
+            margin-right: 40px;
+            font-size: 14px;
+        }
+
+        .dialog-container {
+            flex-direction: column;
+            background-color: #f2f2f2;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px;
+            width: 100%;
+            align-items: flex-end;
+        }
+
+        .chat-input-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        #messageInput {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            resize: none;
+        }
+
+        .send-container {
+            width: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        #charCount {
+            color: #555;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+
+    </style>
+{% endblock custom_css %}
+
+

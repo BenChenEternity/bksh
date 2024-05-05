@@ -1,0 +1,61 @@
+{% extends 'base_template.html' %}
+
+
+{% block page_title %}
+    发布动态
+{% endblock %}
+
+{% block main_content %}
+    {% load static %}
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">动态</h3>
+                        </div>
+                        <form action="{% url 'moment_publish_save' %}" method="post">
+                            {% csrf_token %}
+                            <div class="card-body">
+                                <div class="form-group">
+                                    <label>标题</label>
+                                    <input class="form-control" placeholder="标题" type="text" name="moment_title">
+                                </div>
+                                <div class="form-group">
+                                    <label>内容</label>
+                                    <textarea placeholder="输入帖子内容" class="form-control" style="height: 150px"
+                                              name="moment_content"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label>类别</label>
+                                    <select class="form-select mb-3" aria-label=".form-select-lg example"
+                                            name="category">
+                                        {% for i in category %}
+                                            <option value="{{ i }}" >{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input " name='anonymous' type="checkbox" value="1" style="border: solid 2px #28b5b7"
+                                           id="flexCheckDefault" >
+                                    <label class="form-check-label" for="flexCheckDefault" style="color: #28b5b7">
+                                        匿名发布
+                                    </label>
+                                </div>
+
+
+                            </div>
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary">发布</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <br>
+    </section>
+{% endblock %}

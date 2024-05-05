@@ -1,0 +1,229 @@
+
+
+
+{% load static %}
+
+<!DOCTYPE html>
+<html data-theme="dark">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <link rel="shortcut icon" href="{{ STATIC_URL }}img/favicon.png">
+    <title> 蓝鲸校园助手 </title>
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Font Awesome -->
+
+    <link rel="stylesheet" href="{{ STATIC_URL }}fontawesome-free/css/all.min.css">
+
+
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
+    <!-- Tempusdominus Bbootstrap 4 -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}tempusdominus-bootstrap-4/css/tempusdominus-bootstrap-4.min.css">
+    {#    <link rel="stylesheet" href="/css/toggle-bootstrap.min.css"/>#}
+    {#    <link rel="stylesheet" href="/css/toggle-bootstrap-dark.min.css"/>#}
+    {#    <link rel="stylesheet" href="/css/toggle-bootstrap-print.min.css"/>#}
+    <!-- iCheck -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}icheck-bootstrap/icheck-bootstrap.min.css">
+    <!-- JQVMap -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}jqvmap/jqvmap.min.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}dist/css/adminlte.min.css">
+    <!-- overlayScrollbars -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}overlayScrollbars/css/OverlayScrollbars.min.css">
+    <!-- Daterange picker -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}daterangepicker/daterangepicker.css">
+    <!-- summernote -->
+    <link rel="stylesheet" href="{{ STATIC_URL }}summernote/summernote-bs4.css">
+    <!-- Google Font: Source Sans Pro -->
+    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        .myalert {
+            width: 30%;
+            position: absolute;
+            z-index: 10;
+            left: 35%;
+            top: 2px;
+            text-align: center
+        }
+
+
+    </style>
+
+    {% comment %} For Custom CSS {% endcomment %}
+
+    {% block custom_css %}
+    {% endblock custom_css %}
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed">
+<div class="wrapper">
+
+    <!-- Navbar -->
+    <nav class="main-header navbar navbar-expand text-white navbar-gray-dark"
+         style="padding-top: 10px;padding-bottom: 10px">
+        <!-- Left navbar links -->
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link " style="color: lightblue" data-widget="pushmenu" href="#" role="button"><i
+                        class="fas fa-bars fa-1x"></i></a>
+            </li>
+        </ul>
+        <img src="{{ STATIC_URL }}img/lan_title.png" alt="" height="45px" width="300px">
+
+
+        <ul class="navbar-nav ml-auto">
+
+            <!-- Notifications Dropdown Menu -->
+            <li class="nav-item dropdown">
+                <a style="color: lightblue" class="nav-link" data-toggle="dropdown" href="#" aria-expanded="false">
+                    <i class="fa fa-cog fa-spin fa-2x fa-fw"></i>
+                </a>
+                <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right" style="left: inherit; right: 0px;">
+
+                    <a href="{% url 'personal_profile' %}" class="dropdown-item">
+                        <i class="fas fa-user-edit mr-2"></i> 个人信息
+                    </a>
+
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'logout_user' %}" class="dropdown-item">
+                        <i class="fa-solid fa-registered"></i> &nbsp;&nbsp;&nbsp;注销
+                    </a>
+                    <div class="dropdown-divider"></div>
+                    <a href="{% url 'change_password' %}" class="dropdown-item">
+                        <i class="fas fa-power-off mr-2"></i> 修改密码
+                    </a>
+                </div>
+            </li>
+        </ul>
+
+    </nav>
+    <!-- /.navbar -->
+
+    <!-- Main Sidebar Container -->
+    {% include 'sidebar.html' with user=user id=id %}
+
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" style="background-color: rgba(140, 66, 244, 0.05);">
+
+        <!-- Content Header (Page header) -->
+        <div class="content-header">
+            <h1 style="color: #06aee1;font-weight: bold;text-align: center">
+                {% block page_title %}
+
+                {% endblock %}
+            </h1>
+
+            <div class="container-fluid">
+                <div class="row mb-2">
+                    {% if messages %}
+                        <div class="form-group">
+                            <div class="col-12">
+                                {% for message in messages %}
+                                    {% if message.tags == "error" %}
+                                        <div class="alert alert-danger alert-dismissible fade show myalert"
+                                             role="alert">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% elif message.tags == "success" %}
+                                        <div class="alert alert-success alert-dismissible  fade show myalert"
+                                             role="alert">
+                                            {{ message }}
+                                            <button type="button" class="close" data-dismiss="alert"
+                                                    aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                    <div class="col-sm-6">
+                        {% block moment_button %}
+
+                        {% endblock %}
+                    </div><!-- /.col -->
+                    <div class="col-sm-6">
+                        {% block title_button %}
+
+                        {% endblock %}
+                    </div><!-- /.col -->
+                </div><!-- /.row -->
+            </div><!-- /.container-fluid -->
+        </div>
+        <!-- /.content-header -->
+
+        <!-- Main content -->
+        {% block main_content %}
+        {% endblock main_content %}
+        <!-- /.content -->
+    </div>
+    <!-- /.content-wrapper -->
+    {% include 'footer.html' %}
+
+
+</div>
+<!-- ./wrapper -->
+
+
+<!-- jQuery -->
+<script src="{{ STATIC_URL }}jquery/jquery.min.js"></script>
+<!-- jQuery UI 1.11.4 -->
+<script src="{{ STATIC_URL }}jquery-ui/jquery-ui.min.js"></script>
+<!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
+<script>
+    $.widget.bridge('uibutton', $.ui.button)
+</script>
+<!-- Bootstrap 4 -->
+<script src="{{ STATIC_URL }}bootstrap/js/bootstrap.bundle.min.js"></script>
+<!-- ChartJS -->
+<script src="{{ STATIC_URL }}chart.js/Chart.min.js"></script>
+<!-- Sparkline -->
+<script src="{{ STATIC_URL }}sparklines/sparkline.js"></script>
+<!-- JQVMap -->
+<script src="{{ STATIC_URL }}jqvmap/jquery.vmap.min.js"></script>
+<script src="{{ STATIC_URL }}jqvmap/maps/jquery.vmap.usa.js"></script>
+<!-- jQuery Knob Chart -->
+<script src="{{ STATIC_URL }}jquery-knob/jquery.knob.min.js"></script>
+<!-- daterangepicker -->
+<script src="{{ STATIC_URL }}moment/moment.min.js"></script>
+<script src="{{ STATIC_URL }}daterangepicker/daterangepicker.js"></script>
+<!-- Tempusdominus Bootstrap 4 -->
+<script src="{{ STATIC_URL }}tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js"></script>
+<!-- Summernote -->
+<script src="{{ STATIC_URL }}summernote/summernote-bs4.min.js"></script>
+<!-- overlayScrollbars -->
+<script src="{{ STATIC_URL }}overlayScrollbars/js/jquery.overlayScrollbars.min.js"></script>
+<!-- AdminLTE App -->
+<script src="{{ STATIC_URL }}dist/js/adminlte.js"></script>
+<!-- AdminLTE dashboard demo (This is only for demo purposes) -->
+<script src="{{ STATIC_URL }}dist/js/pages/dashboard.js"></script>
+<!-- AdminLTE for demo purposes -->
+<script src="{{ STATIC_URL }}dist/js/demo.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://kit.fontawesome.com/5b218e6e9b.js" crossorigin="anonymous"></script>
+{% comment %} For Custom JS {% endcomment %}
+<script>
+    window.onload = function () {
+        window.setTimeout(function () {
+            $(".alert-success").removeClass("show");
+        }, 2000);//显示的时间
+        window.setTimeout(function () {
+            $(".alert-danger").removeClass("show");
+        }, 1200);//显示的时间
+    }
+</script>
+{% block custom_js %}
+{% endblock custom_js %}
+
+</body>
+</html>

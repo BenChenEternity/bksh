@@ -1,0 +1,225 @@
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+{% extends 'base_template.html' %}
+{% block page_title %}
+    我的收藏
+{% endblock %}
+{% block main_content %}
+    <div class="container infinite-container">
+        <div class="post-block">
+            {% for post_info in posts_info %}
+                {% with post=post_info.post post_liked=post_info.liked post_starred=post_info.starred %}
+                    <div class="card my_main border-info mb-3">
+            <span class="card-header">
+            <a href="
+                    {% if not post.anonymous %}{% url 'ohome_page' post.author.admin.id %}{% else %}javaScript:void(0){% endif %}"
+               style="text-decoration: none">
+                    <img src={% if post.anonymous %}/stag--bkshdemo/media/{{ post.author.anonymous_img }}
+                    {% else %}
+                        {{ post.author.avatars.url }}
+                    {% endif %}
+                         class="avartar" alt="头像">&nbsp;
+
+            </a>
+                {% if post.anonymous %}
+                    匿名
+                {% else %}
+                    {{ post.author.admin.username }}
+                {% endif %}
+                <span class="card-header-smaller-right">{{ post.author.school }} {{ post.ctime }}</span>
+            </span>
+
+
+                        <div class="card-body" data-post-id="{{ post.id }}" data-author-id="{{ post.author.id }}">
+                            <a class="card-title card-title-font" style="text-decoration: none"
+                               href="{% url 'view_moment' post.id %}">{{ post.title }}</a>
+                            <p class="card-text">{% if post.content|length > 20 %}
+                                {{ post.content|slice:":20" }}......
+                            {% else %}
+                                {{ post.content }}
+                            {% endif %}</p>
+                            <p class="post_type">{{ post.post_type }}</p>
+
+                            <a class="btn btn-star btn-light btn-lg float-right {% if post_starred %}starred{% endif %}"
+                               style="border: none;"
+                               onclick="handleStarClick(this)"><i class="fas fa-star"></i></a>
+                            <a class="btn btn-like btn-light btn-lg float-right {% if post_liked %}liked{% endif %}"
+                               style="border: none;"
+                               onclick="handleThumbsUpClick(this)"><i class="fas fa-thumbs-up"></i>
+                                <span id="likesCount{{ post.id }}" style="font-size: smaller">{{ post.like }}</span>
+                            </a>
+                        </div>
+                    </div>
+                {% endwith %}
+            {% endfor %}
+        </div>
+    </div>
+    <input type="hidden" id="current_page" value="{{ posts_info.number }}">
+{% endblock %}
+
+{% block custom_css %}
+    <style>
+        .my_main {
+            max-height: 200px;
+            width: 80%;
+            margin: auto;
+        }
+
+        .card-header-smaller-right {
+            font-size: smaller;
+            float: right;
+            font-weight: lighter;
+        }
+
+        .card-title-font {
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        .post_type {
+            font-size: 14px;
+            font-weight: lighter;
+            margin: 0;
+        }
+
+        .avartar {
+            width: 29px;
+            height: 29px;
+            border-radius: 50%;
+        }
+
+        .btn-like {
+            width: 100px;
+            height: 38px;
+            text-align: center;
+            padding-top: 3px;
+        }
+
+        .btn-like.liked {
+            color: #02afec;
+        }
+
+        .btn-star.starred {
+            color: #02afec;
+        }
+
+        .btn-like.liked:hover {
+            color: #02afec;
+        }
+
+        .btn-star.starred:hover {
+            color: #02afec;
+        }
+
+
+        .btn-star {
+            width: 50px;
+            height: 38px;
+            padding-top: 9px;
+            margin: 0 0 0 10px;
+        }
+    </style>
+{% endblock custom_css %}
+
+
+{% block custom_js %}
+    <script>
+        function handleStarClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            console.log("star for post ID:", postId);
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_star' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result
+                    if (resultValue === 'starred') {
+                        element.classList.add('starred');
+                    } else if (resultValue === 'unstarred') {
+                        element.classList.remove('starred');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                }
+            })
+            ;
+        }
+
+        function handleThumbsUpClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            console.log("thumb up for post ID:", postId);
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_like' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result;
+                    var likesCountElement = document.getElementById('likesCount' + postId);
+                    var currentLikes = parseInt(likesCountElement.textContent);
+                    if (resultValue === 'liked') {
+                        var newLikes = currentLikes + 1;
+                        element.classList.add('liked');
+
+                    } else if (resultValue === 'unliked') {
+                        var newLikes = currentLikes - 1;
+                        element.classList.remove('liked');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                    likesCountElement.textContent = newLikes;
+                }
+            })
+            ;
+        }
+
+        var loading = false;
+        $(document).ready(function () {
+            $(window).scroll(function () {
+                var scrollTop = window.scrollY || document.documentElement.scrollTop;
+                var totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+                var progress = (scrollTop / totalHeight) * 100;
+
+                console.log("滚动条进度：" + progress + "%");
+                if (progress >= 80 && !loading) {
+                    loading = true;  // 设置加载中标志，防止重复加载
+                    // 获取当前页码
+                    currentPage = parseInt($('#current_page').val()) || 1;
+                    var nextPage = currentPage + 1;
+                    // 发送Ajax请求获取下一页内容
+                    $.ajax({
+                        url: '?page=' + nextPage,
+                        type: 'GET',
+                        dataType: 'html',
+                        success: function (data) {
+                            if (data.trim() !== '') {
+                                var $data = $(data);
+                                // 将新内容追加到容器中
+                                $('.infinite-container').append($data.find('.post-block'));
+                                $('#current_page').val(nextPage);
+                                loading = false;  // 重置加载中标志
+                            }
+                        },
+                        error: function () {
+                            loading = false;  // 处理错误时也要重置加载中标志
+                        }
+                    });
+                }
+            })
+        });
+    </script>
+{% endblock custom_js %}

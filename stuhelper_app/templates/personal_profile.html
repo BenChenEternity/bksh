@@ -1,0 +1,180 @@
+{% extends 'base_template.html' %}
+
+{% block page_title %}
+    设置
+{% endblock page_title %}
+
+
+
+{% block main_content %}
+
+    {% load static %}
+
+    <section class="content">
+        <div class="container-fluid">
+
+            <div class="row">
+                <div class="col-md-12">
+                    <!-- general form elements -->
+                    <div class="card card-primary">
+                        <div class="card-header">
+                            <h3 class="card-title">个人信息</h3>
+                        </div>
+                        <!-- /.card-header -->
+
+
+                        <div class="card-body">
+                            <div class="form-group">
+                                <label for="btn">
+                                    <img class='img-circle' src="{{ user.customuser.avatars.url }} "
+                                         style="width: 100px;height: 100px;border-radius: 50%"
+                                         alt="空" id='pic1'>
+                                </label>
+
+                                {#                                <button class="btn btn-outline-primary" id='btn'>更换头像</button>#}
+                                <form method='post' enctype="multipart/form-data" action="{% url 'change_avatar' %}">
+                                    {% csrf_token %}
+                                    <button type='button' class="btn btn-outline-primary" id="bbtn">更换头像</button>
+                                    <input type="file" class="btn btn-primary btn-sm" id='btn' value='更换头像'
+                                           name="pic" style="display: none" accept="image/png">
+                                    <input type="submit" class='btn btn-outline-primary' value="确定">
+
+                                </form>
+                            </div>
+                            <hr/>
+                            <form role='form' action="{% url 'admin_profile_update' %}" method="POST">
+                                {% csrf_token %}
+                                <div class="form-group">
+                                    <label>用户名 </label>
+                                    <input type="text" class="form-control" name="username"
+                                           value="{{ user.username }}" disabled="disabled">
+                                </div>
+                                <div class="form-group">
+                                    <label>个性签名 </label>
+                                    <input type="text" class="form-control" name="motto"
+                                           value="{{ user.customuser.motto }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>邮箱 </label>
+                                    <input type="Email" class="form-control" name="email" disabled="disabled"
+                                           value="{{ user.customuser.email }}"
+                                    >
+                                </div>
+
+                                <div class="form-group">
+                                    <label>QQ </label>
+                                    <input type="number" class="form-control" name="qq"
+                                           value="{{ user.customuser.qq }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>手机号码 </label>
+                                    <input type="number" class="form-control" name="phone"
+                                           value="{{ user.customuser.phone }}">
+                                </div>
+                                <div class="form-group">
+                                    <label>学校 </label>
+
+                                    <input id="appName" class="form-control" type="text" list="appNamelist" name="school"
+                                           value="{{ user.customuser.school }}">
+                                    <datalist id="appNamelist">
+                                        {% for option in options %}
+                                            <option value="{{ option }}">{{ option }}</option>
+                                        {% endfor %}
+
+                                    </datalist>
+                                </div>
+                                <button type="submit" class="btn btn-primary">修改资料</button>
+                                <a type="button" class="btn btn-primary" href="{% url 'email_change' %}">更改邮箱</a>
+                            </form>
+
+
+                        </div>
+                        <!-- /.card-body -->
+
+                        {#                        </form>#}
+                    </div>
+                    <!-- /.card -->
+
+                </div>
+            </div>
+
+        </div><!-- /.container-fluid -->
+    </section>
+
+{% endblock main_content %}
+{% block custom_css %}
+    <style>    .lBut {
+        width: 87px;
+        height: 32px;
+        font-size: 14px;
+        line-height: 1.15;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-radius: 4px;
+        padding: 8px 10px;
+        margin-left: 28px;
+        transition: all 0.5s;
+        white-space: nowrap;
+        background-color: #409eff;
+        color: white;
+        border: 1px solid #409eff;
+    }</style>
+
+
+{% endblock %}
+
+{% block custom_js %}
+    <script>
+        var btn = document.getElementById('btn');
+        var bbtn = document.getElementById('bbtn');
+        var pic1 = document.getElementById('pic1');
+        bbtn.addEventListener('click', function () {
+            btn.click();
+        });
+        btn.onchange = function () {
+            const data = window.URL.createObjectURL(this.files[0]);
+            pic1.src = data;
+        }
+    </script>
+{% endblock %}
+
+{#{% block custom_js %}#}
+{#    <script>#}
+{#        $(function () {#}
+{#            $('#btn').click(function () {#}
+{#                $('#ipt').click();#}
+{#                console.log('jsidolfajposp');#}
+{#            });#}
+{#            $('#ipt').change(function () {#}
+{#                console.log('yesyresia');#}
+{#                var file = this.files[0];#}
+{#                var reader = new FileReader();#}
+{#                var formData = new FormData();#}
+{#                formData.append('file', $('#ipt')[0].files[0]);#}
+{#                formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');#}
+{#                reader.readAsDataURL(file);#}
+{#                reader.onload = function () {#}
+{#                    $('#pic').attr('src', reader.result);#}
+{#                    console.log(formData);#}
+{#                    $.ajax({#}
+{#                        url: "{% url 'change_avatar' %}",#}
+{#                        dataType: 'json',#}
+{#                        type: 'POST',#}
+{#                        async: false,#}
+{#                        data: formData,#}
+{#                        processData: false, // 使数据不做处理#}
+{#                        contentType: false, // 不要设置Content-Type请求头#}
+{##}
+{##}
+{#                        success: function (data) {#}
+{#                            console.log(data);#}
+{#                        }#}
+{#                    })#}
+{#                }#}
+{##}
+{##}
+{#            });#}
+{#        });#}
+{#    </script>#}
+{#{% endblock %}#}

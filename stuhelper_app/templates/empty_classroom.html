@@ -1,0 +1,301 @@
+{% extends 'base_template.html' %}
+
+
+{% block page_title %}
+    空教室查询
+{% endblock %}
+
+{% block main_content %}
+    {% load static %}
+    <section class="content">
+        <div class="container-fluid">
+
+
+            {% if messages %}
+                <div class="form-group">
+                    <div class="col-12">
+                        {% for message in messages %}
+                            {% if message.tags == "error" %}
+                                <div class="alert alert-danger alert-dismissible fade show myalert" role="alert"
+                                     style="margin-top: 10px;">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% elif message.tags == "success" %}
+                                <div class="alert alert-success alert-dismissible fade show myalert" role="alert"
+                                     style="margin-top: 10px;">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endif %}
+            <form action="{% url 'empty_classroom' %}" method="get">
+
+                <div class="container-fluid">
+                    <div class="flex-row ">
+                        <div class="container">
+                            <div class="row">
+                                <span class="col-sm-1">周次</span>
+
+
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3" aria-label=".form-select-lg example"
+                                            name="empty_week"
+                                    >
+
+                                        {% for i in week_num %}
+                                            <option value="{{ i }}" {% if empty_week == i %}selected
+
+                                            {% endif %}>{{ i }}</option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+
+
+                            </div>
+                            <div class="row">
+                                <span class='col-sm-1'
+                                >星期</span>
+
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3" aria-label=".form-select-lg example"
+                                            name="empty_day"
+                                    >
+
+                                        {% for i in day_num %}
+                                            <option value="{{ i }}" {% if empty_day == i %}selected
+
+                                            {% endif %}>
+                                                {% for key, value in xingqi.items %}
+                                                    {% if key == i %}
+                                                        {{ value }}
+                                                    {% endif %}
+
+                                                {% endfor %}
+
+                                            </option>
+                                        {% endfor %}
+
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <label class='col-sm-1'
+                                >选择楼号</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3" aria-label=".form-select-lg example"
+                                            name="building_id" value="{{ building_id }}"
+                                    >
+
+                                        {% for building in buildings %}
+                                            <option value="{{ building }}" {% if building == building_id %}selected
+
+                                            {% endif %}>{{ building }}</option>
+                                        {% endfor %}
+                                    </select>
+
+
+                                </div>
+                            </div>
+                            <div class="row">
+
+                                <label class='col-sm-1'
+                                >开始节次</label>
+
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3" aria-label=".form-select-lg example"
+                                            name="empty_session1" value="{{ empty_session1 }}"
+                                    >
+
+
+                                        {% for i in section_num %}
+                                            <option value="{{ i }}" {% if empty_session1 == i %}selected
+
+                                            {% endif %}>{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+
+
+                                </div>
+                            </div>
+                            <div class="row">
+                                <label class='col-sm-1'
+                                >结束节次</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3"
+                                            aria-label=".form-select-lg example"
+                                            name="empty_session2" value="{{ empty_session2 }}"
+                                    >
+
+
+                                        {% for i in section_num %}
+                                            <option value="{{ i }}" {% if empty_session2 == i %}selected
+
+                                            {% endif %}>{{ i }}</option>
+                                        {% endfor %}
+                                    </select></div>
+                            </div>
+                            <div class="row">
+                                <label class='col-sm-1'
+                                >校区</label>
+                                <div class="col-sm-8">
+                                    <select class="form-select form-select-sm mb-3"
+                                            aria-label=".form-select-lg example"
+                                            name="campus" value="{{ campus }}"
+                                    >
+
+
+                                        {% for i in campus_num %}
+                                            <option value="{{ i }}" {% if campus == i %}selected
+
+                                            {% endif %}>
+                                                {% for key, value in xiaoqu.items %}
+                                                    {% if key == i %}
+                                                        {{ value }}
+                                                    {% endif %}
+
+                                                {% endfor %}
+
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-sm-12">
+                                {#                                <a href={% url 'empty_classroom' %} type="button"#}
+                                {#                                   class="btn btn-primary">所有空教室</a>#}
+                                <button type="submit" class="btn btn-primary">查询</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+
+            </form>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col-md-12">
+                <!-- general form elements -->
+                <div class="card bg-info-subtle mb-0">
+                    <div class="card-header" style="text-align: center">
+
+                        <h5 style="font-family: 'Adobe 宋体 Std L';font-weight: bold">教室详情</h5>
+
+                    </div>
+                    <!-- /.card-header -->
+                    <div class="card-body table-responsive p-0">
+                        <table class="table table-hover table-borderless ">
+                            <thead>
+                            <tr class="text-center" style="border: 0">
+
+
+                                <th>场地编号</th>
+                                <th>楼号</th>
+                                <th>楼层号</th>
+                                <th>座位数</th>
+                                <th>考试座位数</th>
+                                <th>教室类型</th>
+                                <th>校区</th>
+                                {#                                    <th>星期</th>#}
+                                {#                                    <th>节数</th>#}
+
+                            </tr>
+                            </thead>
+                            <tbody class="table-group-divider">
+
+                            {% for empty_classroom in page_obj %}
+                                <tr class="text-center">
+                                    <td>{{ empty_classroom.location_id }}</td>
+                                    <td>{{ empty_classroom.building_id }}</td>
+                                    <td>{{ empty_classroom.floor_id }}</td>
+                                    <td>{{ empty_classroom.seat_num }}</td>
+                                    <td>{{ empty_classroom.exam_seat_num }}</td>
+                                    <td>{{ empty_classroom.get_classroom_type_display }}</td>
+                                    <td>{{ empty_classroom.get_campus_display }}</td>
+
+                                </tr>
+                            {% endfor %}
+
+
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- /.card-body -->
+                </div>
+                {% if is_paginated %}
+                    <br>
+                    <div class="container">
+                        <nav aria-label="...">
+                            <ul class="pagination  justify-content-center">
+                                {% if page_obj.has_previous %}
+                                    <li class="page-item"><a class="page-link"
+                                                             href="?page={{ page_obj.previous_page_number }}{% if not q_all %}&empty_week={{ empty_week }}&empty_day={{ empty_day }}&empty_session1={{ empty_session1 }}&empty_session2={{ empty_session2 }}&campus={{ campus }}&building_id={{ building_id }}
+                                                                         {% endif %} ">前一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">前一页</span>
+                                    </li>
+                                {% endif %}
+
+                                {% if page != '1' %}
+                                    <li class="page-item"><a class="page-link"
+                                                             href="?page=1{% if not q_all %}&empty_week={{ empty_week }}&empty_day={{ empty_day }}&empty_session1={{ empty_session1 }}&empty_session2={{ empty_session2 }}&campus={{ campus }}&building_id={{ building_id }}{% endif %} ">首页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled">
+                                        <span class="page-link">首页</span>
+                                    </li>
+                                {% endif %}
+
+                                {% for i in page_range %}
+                                    {% if page_obj.number == i %}
+                                        <li class="page-item active"><span class="page-link"> {{ i }} <span
+                                                class="sr-only">(current)</span></span></li>
+                                    {% else %}
+                                        <li class="page-item"><a class="page-link"
+                                                                 href="?page={{ i }}{% if not q_all %}&empty_week={{ empty_week }}&empty_day={{ empty_day }}&empty_session1={{ empty_session1 }}&empty_session2={{ empty_session2 }}&campus={{ campus }}&building_id={{ building_id }}{% endif %}">{{ i }}</a>
+                                        </li>
+                                    {% endif %}
+                                {% endfor %}
+                                {% if page != page_obj.paginator.num_pages %}
+                                    <li class="page-item"><a class="page-link"
+                                                             href="?page={{ page_obj.paginator.num_pages }}{% if not q_all %}&empty_week={{ empty_week }}&empty_day={{ empty_day }}&empty_session1={{ empty_session1 }}&empty_session2={{ empty_session2 }}&campus={{ campus }}&building_id={{ building_id }}{% endif %}">尾页</a>
+                                    </li>
+                                {% endif %}
+                                {% if page_obj.has_next %}
+                                    <li class="page-item"><a class="page-link"
+                                                             href="?page={{ page_obj.next_page_number }}{% if not q_all %}&empty_week={{ empty_week }}&empty_day={{ empty_day }}&empty_session1={{ empty_session1 }}&empty_session2={{ empty_session2 }}&campus={{ campus }}&building_id={{ building_id }}{% endif %}">下一页</a>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item disabled"><span class="page-link">下一页</span>
+                                    </li>
+                                {% endif %}
+                            </ul>
+
+                            </ul>
+                        </nav>
+                    </div>
+
+                {% endif %}
+                <!-- /.card -->
+
+
+            </div>
+        </div>
+
+        </div><!-- /.container-fluid -->
+    </section>
+{% endblock %}
+

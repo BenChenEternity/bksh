@@ -1,0 +1,241 @@
+{% extends 'base_template.html' %}
+{% block page_title %}
+    我的动态
+{% endblock %}
+{% block title_button %}
+    <a href="{% url 'moment_publish' %}" style="float: right" class="btn btn-outline-primary">发布动态</a>
+    <a href="{% url 'resource_share' %}" style="float: right" class="btn btn-outline-primary">分享资源</a>
+
+{% endblock %}
+{% block main_content %}
+    <div class="container infinite-container">
+        {% for post_info in posts_info %}
+            {% with post=post_info.post liked=post_info.liked starred=post_info.starred %}
+                <div class="card my_main border-info mb-3 infinite-item">
+            <span class="card-header">
+                <img src="{{ post.author.avatars.url }}" class="avartar" alt="头像">&nbsp;
+                {{ post.author.admin.username }}
+                <span class="card-header-smaller-right">{{ post.author.school }} {{ post.ctime }}</span>
+            </span>
+
+                    <div class="card-body" data-post-id="{{ post.id }}">
+                        <a class="card-title card-title-font" style="text-decoration: none"
+                           href="{% url 'view_moment' post.id %}">{{ post.title }}</a>
+                        <p class="card-text">
+                            {% if post.content|length > 20 %}
+                                {{ post.content|slice:":20" }}......
+                            {% else %}
+                                {{ post.content }}
+                            {% endif %}</p>
+                        <div>
+                            <p class="post_type d-inline-block">{{ post.post_type }}</p>
+                            <a type="button" class="btn btn-danger float-right" href="{% url 'my_moment_delete' post.id %}">删除
+                            </a>
+                            <a class="btn btn-star btn-light btn-lg float-right {% if starred %}starred{% endif %}"
+                               style="border: none;"
+                               onclick="handleStarClick(this)"><i class="fas fa-star"></i></a>
+                            <a class="btn btn-like btn-light btn-lg float-right {% if liked %}liked{% endif %}"
+                               style="border: none;"
+                               onclick="handleThumbsUpClick(this)"><i class="fas fa-thumbs-up"></i>
+                                <span id="likesCount{{ post.id }}" style="font-size: smaller">{{ post.like }}</span>
+                            </a>
+                            <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog"
+                                 aria-labelledby="deleteModalLabel">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <span class="modal-title float-left" id="deleteModalLabel">删除确认</span>
+
+                                            <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close"><span
+                                                    aria-hidden="true">×</span></button>
+                                        </div>
+                                        <div class="modal-body">
+
+                                            <div class="form-group">
+                                                <h5 class="control-label text-center"
+                                                    style="text-align: center;margin: 0">
+                                                    请确认是否删除</h5>
+                                            </div>
+
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-default" data-dismiss="modal">返回
+                                            </button>
+                                            <button class="btn btn-primary" id="confirm">确认</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+        <div class="d-flex d-none position-fixed" style="top:35vh;left:46vw">
+            <button class="btn btn-primary loading">
+                <span class="spinner-border spinner-border-sm"></span>
+                Please wait...
+            </button>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                {% if page_obj.has_next %}
+                    <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}">next</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block custom_css %}
+    <style>
+        .my_main {
+            max-height: 200px;
+            width: 80%;
+            margin: auto;
+        }
+
+        .card-header-smaller-right {
+            font-size: smaller;
+            float: right;
+            font-weight: lighter;
+        }
+
+        .card-title-font {
+            font-weight: bold;
+            font-size: larger;
+        }
+
+        .post_type {
+            font-size: 14px;
+            font-weight: lighter;
+            margin: 0;
+        }
+
+        .avartar {
+            width: 29px;
+            height: 29px;
+            border-radius: 50%;
+        }
+
+        .btn-like {
+            width: 80px;
+            height: 38px;
+            text-align: center;
+            padding-top: 4px;
+        }
+
+        .btn-like.liked {
+            color: #02afec;
+        }
+
+        .btn-star.starred {
+            color: #02afec;
+        }
+
+        .btn-like.liked:hover {
+            color: #02afec;
+        }
+
+        .btn-star.starred:hover {
+            color: #02afec;
+        }
+
+        .btn-star {
+            padding-top: 4px;
+            width: 50px;
+            height: 38px;
+            margin: 0 20px 0 10px;
+        }
+    </style>
+{% endblock custom_css %}
+
+
+{% block custom_js %}
+    <script src="/static/js/jquery.waypoints.min.js"></script>
+    <script src="/static/js/infinite.min.js"></script>
+
+    <script>
+
+        var infinite = new Waypoint.Infinite({
+            element: $('.infinite-container')[0],
+
+            offset: 'bottom-in-view',
+
+            onBeforePageLoad: function () {
+                $('.loading').show();
+            },
+            onAfterPageLoad: function () {
+                $('.loading').hide();
+            }
+
+        });
+
+
+        function handleStarClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            console.log("star for post ID:", postId);
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_star' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result
+                    if (resultValue === 'starred') {
+                        element.classList.add('starred');
+                    } else if (resultValue === 'unstarred') {
+                        element.classList.remove('starred');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                }
+            })
+            ;
+        }
+
+        function handleThumbsUpClick(element) {
+            var postId = $(element).closest('.card-body').data('post-id');
+            console.log("thumb up for post ID:", postId);
+
+            $.ajax({
+                type: "POST",
+                url: "{% url 'moment_like' %}",
+                headers: {
+                    "X-CSRFToken": '{{ csrf_token }}'
+                },
+                data: {
+                    'post_id': postId
+                },
+                success: function (response) {
+                    var resultValue = response.result;
+                    var likesCountElement = document.getElementById('likesCount' + postId);
+                    var currentLikes = parseInt(likesCountElement.textContent);
+                    if (resultValue === 'liked') {
+                        var newLikes = currentLikes + 1;
+                        element.classList.add('liked');
+
+                    } else if (resultValue === 'unliked') {
+                        var newLikes = currentLikes - 1;
+                        element.classList.remove('liked');
+                    } else {
+                        console.error('Unexpected result value:', resultValue);
+                        return;
+                    }
+                    likesCountElement.textContent = newLikes;
+                }
+            })
+            ;
+        }
+    </script>
+
+
+
+{% endblock custom_js %}
